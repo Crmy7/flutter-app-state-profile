@@ -135,6 +135,30 @@ class TestState extends State<Test> {
   }
 }
 
+class Profile {
+  String firstName;
+  String lastName;
+  int? age;
+  double height;
+  Gender gender;
+  List<String> hobbies;
+  String favoriteProgrammingLanguage;
+  String secret;
+
+  Profile({
+    this.firstName = "",
+    this.lastName = "",
+    this.age,
+    this.height = 0.0,
+    this.gender = Gender.male,
+    this.hobbies = const [],
+    this.favoriteProgrammingLanguage = "",
+    this.secret = "",
+  });
+}
+
+enum Gender { male, female }
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -145,6 +169,9 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage> {
   final ImagePicker picker = ImagePicker();
   XFile? image;
+  List<int> ageList = List<int>.generate(150, (int index) => index);
+  bool _isObscure = true;
+  int _groupValue = 0;
 
   Future<void> pickImage(ImageSource source) async {
     try {
@@ -157,51 +184,315 @@ class ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print('Error occurred while picking image: $e');
     }
-    setState(() {}); // Add this line to trigger a rebuild
   }
+
+  Profile profile = Profile(firstName: "", lastName: "", secret: "", hobbies: []);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: Text("Profile"),
+        backgroundColor: Colors.blue,
+        title: const Text(
+          "Profile page",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 150, right: 20, left: 20),
-            child: Center(
-              child: Column(
-                children: [
-                  const Text('Mon profil'),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      image: DecorationImage(
-                        image: FileImage(File(image!.path)),
-                        fit: BoxFit.cover,
+          padding: const EdgeInsets.all(20),
+          child: Column(children: <Widget>[
+            Card(
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      leading: Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 2,
+                            color: Colors.pink,
+                          ),
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: CircleAvatar(
+                          backgroundImage: FileImage(File(image?.path ?? "")),
+                        ),
+                      ),
+                      title: Text(
+                        profile.firstName + ' ' + profile.lastName,
+                        // Utilisation de la variable firstName
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      trailing: Text(
+                        profile.age.toString() + '/yo',
+                        // Utilisation de la variable firstName
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    child: image == null ? Text('No image selected.') : SizedBox(),
-                  ),
-                  const SizedBox(height: 50),
-                  ElevatedButton(
-                    onPressed: () => pickImage(ImageSource.camera),
-                    child: Text('Take Picture'),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () => pickImage(ImageSource.gallery),
-                    child: Text('Pick from Gallery'),
+                    Row(
+                      children: <Widget>[
+                        Icon(
+                          profile.gender == Gender.male
+                              ? Icons.male
+                              : Icons.female,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10),
+                        Text(profile.gender == Gender.male ? 'Homme' : 'Femme'),
+                      ],
+                    ),
+                    const Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.height,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10),
+                        Text('200cm'),
+                      ],
+                    ),
+                    const Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.sports_basketball_outlined,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10),
+                        Text('Basket'),
+                      ],
+                    ),
+                    const Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.code,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10),
+                        Text('Vue.Js'),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        const Icon(
+                          Icons.fingerprint,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          _isObscure ? '********' : profile.secret,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => pickImage(ImageSource.camera),
+                              child: const Icon(
+                                Icons.browse_gallery,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => pickImage(ImageSource.gallery),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscure = !_isObscure;
+                              });
+                            },
+                            child: const Text(
+                              'Hide my secret',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Center(
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: 'Prénom',
+                ),
+                onChanged: (value) => setState(() {
+                  profile.firstName = value;
+                }),
+              ),
+            ),
+            Center(
+              child: TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Nom',
+                ),
+                onChanged: (value) => setState(() {
+                  profile.lastName = value;
+                }),
+              ),
+            ),
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Select your age: '),
+                  DropdownButton<int>(
+                    items: ageList.map((int value) {
+                      return DropdownMenuItem<int>(
+                        value: value,
+                        child: Text(value.toString()),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      // Add your onChanged logic here
+                      setState(() {
+                        profile.age = newValue;
+                      });
+                    },
+                    hint: Text('Select Age'),
                   ),
                 ],
               ),
-            )
-        )
-
+            ),
+            Center(
+              child: TextField(
+                obscureText: _isObscure,
+                decoration: InputDecoration(
+                    labelText: 'Password',
+                    // this button is used to toggle the password visibility
+                    suffixIcon: IconButton(
+                        icon: Icon(_isObscure
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        })),
+                onChanged: (value) => setState(() {
+                  profile.secret = value;
+                }),
+              ),
+            ),
+            SizedBox(height: 20),
+            Center(
+                child: Column(children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  child: Text("I'm …",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      )),
+                ),
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: RadioListTile<Gender>(
+                      value: Gender.male,
+                      title: Text("Male"),
+                      groupValue:
+                          _groupValue == 0 ? Gender.male : Gender.female,
+                      onChanged: (Gender? value) {
+                        setState(() {
+                          _groupValue = value == Gender.male ? 0 : 1;
+                          profile.gender = value!;
+                        });
+                      },
+                      activeColor: Colors.lightBlue[900],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: RadioListTile<Gender>(
+                      value: Gender.female,
+                      title: Text("Female"),
+                      groupValue:
+                          _groupValue == 1 ? Gender.female : Gender.male,
+                      onChanged: (Gender? value) {
+                        setState(() {
+                          _groupValue = value == Gender.male ? 0 : 1;
+                          profile.gender = value!;
+                        });
+                      },
+                      activeColor: Colors.lightBlue[900],
+                    ),
+                  ),
+                ],
+              ),
+            ])),
+            const SizedBox(height: 20),
+            Center(
+                child: Column(children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  child: const Text("I like to …",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      )),
+                ),
+              ),
+              Column(
+                children: <Widget>[
+                  CheckboxListTile(
+                    title: const Text("Play football"),
+                    value: profile.hobbies.contains("Play football"),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value!) {
+                          profile.hobbies.add("Play football");
+                        } else {
+                          profile.hobbies.remove("Play football");
+                        }
+                      });
+                    },
+                    activeColor: Colors.lightBlue[900],
+                  ),
+                  CheckboxListTile(
+                    title: const Text("Play basketball"),
+                    value: profile.hobbies.contains("Play basketball"),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value!) {
+                          profile.hobbies.add("Play basketball");
+                        } else {
+                          profile.hobbies.remove("Play basketball");
+                        }
+                      });
+                    },
+                    activeColor: Colors.lightBlue[900],
+                  ),
+                ],
+              ),
+            ]))
+          ]),
+        ),
       ),
     );
   }
